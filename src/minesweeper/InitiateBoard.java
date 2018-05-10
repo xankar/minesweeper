@@ -67,6 +67,8 @@ public class InitiateBoard
     public void generateMines(int nMines)
     {
         mines = nMines;
+        System.out.println(nMines);
+        System.out.println(mines);
 
         for (int x = 0; x < xTiles; x++)
         {

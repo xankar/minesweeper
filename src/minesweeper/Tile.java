@@ -1,55 +1,46 @@
 package minesweeper;
 
+import javafx.application.Application;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+import javafx.scene.control.Button;
+import javafx.event.EventHandler;
+import java.awt.event.MouseEvent;
+import javafx.event.ActionEvent;
 import java.util.List;
 import java.util.ArrayList;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.text.*;
 
 
 public class Tile extends StackPane
 {
-        public static int totalBombs;
-        public static int totalTiles;
-        public static int flagCounter;
-        public static int openedCounter;
-        
         Rectangle rectangle;
         Label label;
         boolean isBomb = false;
         boolean opened = false;
-        boolean flagged = false;
-        
+
         int x;
         int y;
 
         int val;
 
-        Tile gameBoardTiles[][];
+        Tile killmenow[][];
 
         InitiateBoard board;
 
         Group grid;
 
-        public Tile( String name, int x, int y, double width, double height, Group grid, InitiateBoard board, Text scoreBar)
+        public Tile( String name, int x, int y, double width, double height, Group grid, InitiateBoard board)
         {
             this.x = x;
             this.y = y;
             this.board = board;
             //val = Integer.parseInt(name);
             this.grid = grid;
-            
-            this.flagCounter = board.mines;
-            this.openedCounter = 0;
-            this.totalBombs = board.mines;
-            this.totalTiles = board.xTiles * board.yTiles;
-            
-            scoreBar.setText("Flag Counter: " + flagCounter);
 
             // create rectangle
             rectangle = new Rectangle(width, height);
@@ -75,17 +66,7 @@ public class Tile extends StackPane
             setTranslateX(x);
             setTranslateY(y);
 
-            this.setOnMousePressed((MouseEvent event) -> {
-                MouseButton button = event.getButton();
-                if(button==MouseButton.PRIMARY){
-                    open(1, scoreBar);
-                }else if(button==MouseButton.SECONDARY){
-                    open(2, scoreBar);
-                }
-            });
-        
-        //(e->open());
-            
+            setOnMouseClicked(e-> open());
             // rectangle.setFill(Color.LIGHTGREY);
             // label.setVisible(true););
 
@@ -101,61 +82,36 @@ public class Tile extends StackPane
             getChildren().addAll(rectangle, label);
         }
 
-        
-        
-        public void open(int clickNum, Text scoreBar)
+        public void open()
         {
           if(opened)
           {
             return;
           }
-          else if(clickNum == 2 && !flagged)
-          {
-              rectangle.setFill(Color.BLUE);
-              flagged = true;
-              flagCounter -= 1;
-              scoreBar.setText("Flag Counter: " + flagCounter);
-          }
-          else if(clickNum == 2 && flagged)
-          {
-              rectangle.setFill(Color.BLACK);
-              flagged = false;
-              flagCounter += 1;
-              scoreBar.setText("Flag Counter: " + flagCounter);
-          }
-          else if(isBomb && clickNum == 1)
+          else if(isBomb)
           {
             grid.getChildren().clear();
-            label = new Label("Game Over - YOU LOSE!");
+            label = new Label("Game Over");
             grid.getChildren().addAll(label);
-            scoreBar.setText("");
+            System.out.println("GAME OVER");
           }
-          else if(label.getText().contains("0") && clickNum == 1)
+          else if(label.getText().contains("0"))
           {
             rectangle.setFill(Color.LIGHTGREY);
             opened = true;
-            openedCounter += 1;
             List<Tile> adjacent;
             adjacent = openEmpty(this);
 
             for(int i = 0; i < adjacent.size(); i++)
             {
-              adjacent.get(i).open(1, scoreBar);
+              adjacent.get(i).open();
             }
           }
-          else if(clickNum == 1)
+          else
           {
             opened = true;
-            openedCounter += 1;
             rectangle.setFill(Color.LIGHTGREY);
             label.setVisible(true);
-          }
-          if(totalTiles - openedCounter == totalBombs)
-          {
-            grid.getChildren().clear();
-            label = new Label("Game Over - YOU WIN!");
-            grid.getChildren().addAll(label);
-            scoreBar.setText("");
           }
         }
 
@@ -163,21 +119,21 @@ public class Tile extends StackPane
         {
             List<Tile> adjacent = new ArrayList<>();
 
-            if ((tile.x / 32) - 1 >= 0 && (tile.y / 32) + 1 < board.yTiles)              {adjacent.add(gameBoardTiles[(tile.x / 32) - 1][(tile.y / 32) + 1]);} // O
-            if ((tile.x / 32) - 1 >= 0)                                                  {adjacent.add(gameBoardTiles[(tile.x / 32) - 1][(tile.y / 32)]);}     // O
-            if ((tile.x / 32) - 1 >= 0 && (tile.y / 32) - 1 >= 0 )                       {adjacent.add(gameBoardTiles[(tile.x / 32) - 1][(tile.y / 32) - 1]);}
-            if ((tile.y / 32) - 1 >= 0 )                                                 {adjacent.add(gameBoardTiles[(tile.x / 32)][(tile.y / 32) - 1]);}
-            if ((tile.x / 32) + 1 < board.xTiles && (tile.y / 32) - 1 >= 0)              {adjacent.add(gameBoardTiles[(tile.x / 32) + 1][(tile.y / 32) - 1]);}
-            if ((tile.x / 32) + 1 < board.xTiles)                                        {adjacent.add(gameBoardTiles[(tile.x / 32) + 1][(tile.y / 32)]);}
-            if ((tile.x / 32) + 1 < board.xTiles && (tile.y / 32) + 1 < board.yTiles)    {adjacent.add(gameBoardTiles[(tile.x / 32) + 1][(tile.y / 32) + 1]);}
-            if ((tile.y / 32) + 1 < board.yTiles)                                        {adjacent.add(gameBoardTiles[(tile.x / 32)][(tile.y / 32) + 1]);}
+            if ((tile.x / 32) - 1 >= 0 && (tile.y / 32) + 1 < board.yTiles)              {adjacent.add(killmenow[(tile.x / 32) - 1][(tile.y / 32) + 1]);} // O
+            if ((tile.x / 32) - 1 >= 0)                                                  {adjacent.add(killmenow[(tile.x / 32) - 1][(tile.y / 32)]);}     // O
+            if ((tile.x / 32) - 1 >= 0 && (tile.y / 32) - 1 >= 0 )                       {adjacent.add(killmenow[(tile.x / 32) - 1][(tile.y / 32) - 1]);}
+            if ((tile.y / 32) - 1 >= 0 )                                                 {adjacent.add(killmenow[(tile.x / 32)][(tile.y / 32) - 1]);}
+            if ((tile.x / 32) + 1 < board.xTiles && (tile.y / 32) - 1 >= 0)              {adjacent.add(killmenow[(tile.x / 32) + 1][(tile.y / 32) - 1]);}
+            if ((tile.x / 32) + 1 < board.xTiles)                                        {adjacent.add(killmenow[(tile.x / 32) + 1][(tile.y / 32)]);}
+            if ((tile.x / 32) + 1 < board.xTiles && (tile.y / 32) + 1 < board.yTiles)    {adjacent.add(killmenow[(tile.x / 32) + 1][(tile.y / 32) + 1]);}
+            if ((tile.y / 32) + 1 < board.yTiles)                                        {adjacent.add(killmenow[(tile.x / 32)][(tile.y / 32) + 1]);}
 
             return adjacent;
         }
 
-        public void setArray(Tile[][] gameBoardTiles)
+        public void setArray(Tile[][] killmenow)
         {
-          this.gameBoardTiles = gameBoardTiles;
+          this.killmenow = killmenow;
         }
 
 }
