@@ -6,16 +6,11 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.*;
-import java.util.stream.Stream;
-import javafx.scene.input.MouseButton;
-import javafx.scene.Node;
-import java.awt.event.MouseEvent;
 
 
 public class Minesweeper extends Application
@@ -26,8 +21,8 @@ public class Minesweeper extends Application
     private int m;
 
     // width and height of the application
-    double appH = 250;
-    double appW = 250;
+    double appH = 1024;
+    double appW = 600;
 
     // width and height of the game tiles
     int gameH = 32;
@@ -41,7 +36,7 @@ public class Minesweeper extends Application
 
     int mines;
 
-    Tile[][] killmenow;
+    Tile[][] gameBoardTiles;
 
     @Override
     public void start(Stage primaryStage)
@@ -51,6 +46,8 @@ public class Minesweeper extends Application
         MenuItem intermediate = new MenuItem("Intermediate");
         MenuItem expert = new MenuItem("Expert");
         Menu mBar2 = new Menu("Help");
+        MenuItem instructions = new MenuItem("Instructions");
+        MenuItem about = new MenuItem("About");
 
         MenuBar menuBar = new MenuBar();
 
@@ -58,13 +55,15 @@ public class Minesweeper extends Application
         mBar1.getItems().add(intermediate);
         mBar1.getItems().add(expert);
 
-        mBar2.getItems().add(new MenuItem("Instructions"));
-        mBar2.getItems().add(new MenuItem("About"));
+        mBar2.getItems().add(instructions);
+        mBar2.getItems().add(about);
 
         menuBar.getMenus().addAll(mBar1,mBar2);
 
         layout = new BorderPane();
         layout.setTop(menuBar);
+        
+        Text scoreBar = new Text("");
 
         Group grid = new Group();
 
@@ -77,8 +76,8 @@ public class Minesweeper extends Application
             n = board.getWidth();
             m = board.getHeight();
             mines = board.getMines();
-            killmenow = new Tile[n][m];
-            updateGrid(grid, board);
+            gameBoardTiles = new Tile[n][m];
+            updateGrid(grid, board, scoreBar);
           }
         });
 
@@ -91,8 +90,8 @@ public class Minesweeper extends Application
             n = board.getWidth();
             m = board.getHeight();
             mines = board.getMines();
-            killmenow = new Tile[n][m];
-            updateGrid(grid, board);
+            gameBoardTiles = new Tile[n][m];
+            updateGrid(grid, board, scoreBar);
 
           }
         });
@@ -106,24 +105,54 @@ public class Minesweeper extends Application
             n = board.getWidth();
             m = board.getHeight();
             mines = board.getMines();
-            killmenow = new Tile[n][m];
-            updateGrid(grid, board);
+            gameBoardTiles = new Tile[n][m];
+            updateGrid(grid, board, scoreBar);
 
           }
         });
 
+        instructions.setOnAction(new EventHandler<ActionEvent>()
+        {
+          public void handle(ActionEvent t)
+          {
+            BorderPane newPane = new BorderPane();
+       
+            Text Rules = new Text("You are presented with a board of squares. Some squares contain mines (bombs), others don't. If you click on a square containing a bomb, you lose.\n If you manage to click all the squares (without clicking on any bombs) you win.\n" +
+"Clicking a square which doesn't have a bomb reveals the number of neighbouring squares containing bombs. Use this information plus some guess work to avoid the bombs.\n" +
+"To open a square, point at the square and click on it. To mark a square you think is a bomb, point and right-click.");
+            Rules.setTextAlignment(TextAlignment.CENTER);
+            newPane.setCenter(Rules);
+            Stage stage = new Stage();
+            stage.setTitle("Instructions");
+            stage.setScene(new Scene(newPane, appH, appW));
+            stage.show();
+          }
+        });
+        
+        about.setOnAction(new EventHandler<ActionEvent>()
+        {
+          public void handle(ActionEvent t)
+          {
+            BorderPane newPane = new BorderPane();
+       
+            Text About = new Text("CREATED BY: \n\n Jake Manning\n + \n Jonathan Stewart");
+            About.setTextAlignment(TextAlignment.CENTER);
+            newPane.setCenter(About);
+            Stage stage = new Stage();
+            stage.setTitle("About");
+            stage.setScene(new Scene(newPane, 450, 450));
+            stage.show();
+          }
+        });
 
-
-        layout.setLeft(grid);
+        layout.setCenter(grid);
         // layout = new BorderPane();
-
-        Text scoreBar = new Text("gay faggot");
         //layout = new BorderPane();
         layout.setBottom(scoreBar);
         //layout.setCenter();
 
         // StackPane root = new StackPane();
-        Scene scene = new Scene(layout, appH, appW);
+        Scene scene = new Scene(layout, appH, appW, Color.GREY);
 
         primaryStage.setTitle("Minesweeper");
         primaryStage.setScene(scene);
@@ -135,7 +164,7 @@ public class Minesweeper extends Application
         launch(args);
     }
 
-    private void updateGrid(Group grid, InitiateBoard board)
+    private void updateGrid(Group grid, InitiateBoard board, Text scoreBar)
     {
       grid.getChildren().clear();
 
@@ -153,8 +182,8 @@ public class Minesweeper extends Application
 
               // create node
               // Tile tile = new Tile( "0", i * gridWidth, j * gridHeight, 50, 50
-              Tile tile = new Tile(strArr[i][j], i * gameW, j * gameH, gameW, gameH, grid, board);
-              killmenow[i][j] = tile;
+              Tile tile = new Tile(strArr[i][j], i * gameW, j * gameH, gameW, gameH, grid, board, scoreBar);
+              gameBoardTiles[i][j] = tile;
               // add node to group
               grid.getChildren().add(tile);
           }
@@ -163,7 +192,7 @@ public class Minesweeper extends Application
       for( int i=0; i < n; i++) {
           for( int j=0; j < m; j++) {
 
-              killmenow[i][j].setArray(killmenow);
+              gameBoardTiles[i][j].setArray(gameBoardTiles);
 
           }
       }
